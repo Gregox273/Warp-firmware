@@ -69,6 +69,7 @@
 #include "devAS7262.h"
 #include "devAS7263.h"
 #include "devSSD1331.h"
+#include "devINA219.h"
 
 #define					kWarpConstantStringI2cFailure		"\rI2C failed, reg 0x%02x, code %d\n"
 #define					kWarpConstantStringErrorInvalidVoltage	"\rInvalid supply voltage [%d] mV!"
@@ -90,6 +91,7 @@ volatile WarpI2CDeviceState		deviceTCS34725State;
 volatile WarpI2CDeviceState		deviceSI4705State;
 volatile WarpI2CDeviceState		deviceCCS811State;
 volatile WarpI2CDeviceState		deviceAMG8834State;
+volatile WarpI2CDeviceState		deviceINA219State;
 volatile WarpUARTDeviceState		devicePAN1326BState;
 volatile WarpUARTDeviceState		devicePAN1323ETUState;
 volatile WarpI2CDeviceState		deviceAS7262State;
@@ -1056,7 +1058,7 @@ main(void)
 	initAMG8834(	0x3A	/* i2cAddress */,	&deviceAMG8834State	);
 	initAS7262(	0x49	/* i2cAddress */,	&deviceAS7262State	);
 	initAS7263(	0x49	/* i2cAddress */,	&deviceAS7263State	);
-
+	initINA219(	0x40	/* i2cAddress */,	&deviceINA219State	); 
 
 
 	/*
@@ -1177,6 +1179,7 @@ main(void)
 				SEGGER_RTT_WriteString(0, "\r\t- 'h' AMG8834			(0x00--?): ?V  -- ?V\n");
 				SEGGER_RTT_WriteString(0, "\r\t- 'j' AS7262			(0x00--0x2B): 2.7V -- 3.6V\n");
 				SEGGER_RTT_WriteString(0, "\r\t- 'k' AS7263			(0x00--0x2B): 2.7V -- 3.6V\n");
+				SEGGER_RTT_WriteString(0, "\r\t- 'l' INA219			(0x00--0x28): 3.0V -- 5.5V\n");
 				SEGGER_RTT_WriteString(0, "\r\tEnter selection> ");
 
 				key = SEGGER_RTT_WaitKey();
@@ -1308,7 +1311,12 @@ main(void)
 
 						break;
 					}
-
+					case 'l':
+					{
+						menuTargetSensor = kWarpSensorINA219;
+					
+						break;						
+					}
 					default:
 					{
 						SEGGER_RTT_printf(0, "\r\tInvalid selection '%c' !\n", key);
@@ -2228,6 +2236,30 @@ repeatRegisterReadForDeviceAndAddress(WarpSensorDevice warpSensorDevice, uint8_t
 					chatty				/*	chatty				*/
 					);
 			break;
+		}
+
+		case kWarpSensorINA219:
+		{
+			/*
+			 *	INA219: VDD 3.0--5.5
+			 */
+			loopForSensor(	"\r\nINA219:\n\r",		/*	tagString			*/
+					&readSensorRegisterINA219,	/*	readSensorRegisterFunction	*/
+					&deviceINA219State,		/*	i2cDeviceState			*/
+					NULL,				/*	spiDeviceState			*/
+					baseAddress,			/*	baseAddress			*/
+					0x00,				/*	minAddress			*/
+					0x2B,				/*	maxAddress			*/
+					repetitionsPerAddress,		/*	repetitionsPerAddress		*/
+					chunkReadsPerAddress,		/*	chunkReadsPerAddress		*/
+					spinDelay,			/*	spinDelay			*/
+					autoIncrement,			/*	autoIncrement			*/
+					sssupplyMillivolts,		/*	sssupplyMillivolts		*/
+					referenceByte,			/*	referenceByte			*/
+					adaptiveSssupplyMaxMillivolts,	/*	adaptiveSssupplyMaxMillivolts	*/
+					chatty				/*	chatty				*/
+					);
+			break;		
 		}
 
 		default:
