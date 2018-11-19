@@ -21,7 +21,7 @@ enum
 	kSSD1331PinSCK		= GPIO_MAKE_PIN(HW_GPIOA, 9),
 	kSSD1331PinCSn		= GPIO_MAKE_PIN(HW_GPIOB, 13),
 	kSSD1331PinDC		= GPIO_MAKE_PIN(HW_GPIOA, 12),
-	kSSD1331PinRST		= GPIO_MAKE_PIN(HW_GPIOA, 2),
+	kSSD1331PinRST		= GPIO_MAKE_PIN(HW_GPIOB, 0),
 };
 
 static int
@@ -72,6 +72,8 @@ devSSD1331init(void)
 	PORT_HAL_SetMuxMode(PORTA_BASE, 8u, kPortMuxAlt3);
 	PORT_HAL_SetMuxMode(PORTA_BASE, 9u, kPortMuxAlt3);
 
+	enableSPIpins();
+
 	/*
 	 *	Override Warp firmware's use of these pins.
 	 *
@@ -79,9 +81,8 @@ devSSD1331init(void)
 	 */
 	PORT_HAL_SetMuxMode(PORTB_BASE, 13u, kPortMuxAsGpio);
 	PORT_HAL_SetMuxMode(PORTA_BASE, 12u, kPortMuxAsGpio);
-	PORT_HAL_SetMuxMode(PORTA_BASE, 2u, kPortMuxAsGpio);
+	PORT_HAL_SetMuxMode(PORTB_BASE, 0u, kPortMuxAsGpio);
 
-	enableSPIpins();
 
 	/*
 	 *	RST high->low->high.
@@ -125,11 +126,11 @@ devSSD1331init(void)
 	writeCommand(kSSD1331CommandVCOMH);		// 0xBE
 	writeCommand(0x3E);
 	writeCommand(kSSD1331CommandMASTERCURRENT);	// 0x87
-	writeCommand(0x0F);
+	writeCommand(0x06);
 	writeCommand(kSSD1331CommandCONTRASTA);		// 0x81
 	writeCommand(0x91);
 	writeCommand(kSSD1331CommandCONTRASTB);		// 0x82
-	writeCommand(0xFF);
+	writeCommand(0x50);
 	writeCommand(kSSD1331CommandCONTRASTC);		// 0x83
 	writeCommand(0x7D);
 	writeCommand(kSSD1331CommandDISPLAYON);		// Turn on oled panel
@@ -160,7 +161,6 @@ devSSD1331init(void)
 	 *	of green.
 	 */
 
-	//...
 	writeCommand(kSSD1331CommandDRAWRECT);
         writeCommand(0x00);  // Start column
         writeCommand(0x00);  // Start row
@@ -171,15 +171,12 @@ devSSD1331init(void)
         writeCommand(0x00);  // Outline colour
         writeCommand(0x00);  // Filled colour
         writeCommand(0xFF);  // Filled colour
-	writeCommand(0x00);  // Filled colour
+        writeCommand(0x00);  // Filled colour
 
 
 //	SEGGER_RTT_WriteString(0, "\r\n\tDone with draw rectangle...\n");
-
-	disableSPIpins();
 
 
 
 	return 0;
 }
-
