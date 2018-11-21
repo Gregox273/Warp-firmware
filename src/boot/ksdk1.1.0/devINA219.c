@@ -93,7 +93,7 @@ readSensorRegisterINA219(uint8_t deviceRegister)
 
 WarpStatus
 writeSensorRegisterINA219(uint8_t deviceRegister, const uint8_t *data) {
-    uint8_t cmdBuf[1]	= {deviceRegister};
+    uint8_t cmdBuf[3]	= {deviceRegister, data[0], data[1]};
     i2c_status_t returnValue;
 
     switch (deviceRegister)
@@ -125,13 +125,13 @@ writeSensorRegisterINA219(uint8_t deviceRegister, const uint8_t *data) {
             &slave,
             cmdBuf,
             sizeof(cmdBuf),
-            data,
-            sizeof(*data),
+            NULL,
+            0,
             500 /* timeout in milliseconds */);
 
     disableI2Cpins();
 
-    SEGGER_RTT_printf(0, "\nI2C_DRV_MasterSendData returned [%d] (read register)\n", returnValue);
+    SEGGER_RTT_printf(0, "\nI2C_DRV_MasterSendData returned [%d] (write register)\n", returnValue);
 
     if (returnValue == kStatus_I2C_Success)
     {
@@ -145,4 +145,9 @@ writeSensorRegisterINA219(uint8_t deviceRegister, const uint8_t *data) {
     }
 
     return kWarpStatusOK;
+}
+
+int16_t decodeShuntVoltageINA219(uint8_t b1, uint8_t b2)
+{
+	return b1 << 8 | b2;
 }

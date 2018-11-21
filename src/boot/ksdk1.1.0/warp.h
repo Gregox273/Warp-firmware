@@ -1,3 +1,6 @@
+#ifndef _WARP_H_
+#define _WARP_H_
+
 #define	min(x,y)	((x) < (y) ? (x) : (y))
 
 typedef enum
@@ -210,3 +213,5 @@ void		enableI2Cpins(uint16_t pullupValue);
 void		disableI2Cpins(void);
 void		enableSPIpins(void);
 void		disableSPIpins(void);
+
+#endif  // _WARP_H_

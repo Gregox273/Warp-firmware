@@ -1103,13 +1103,18 @@ main(void)
 	OSA_TimeDelay(1000);
 
 	(void)devSSD1331init();
+	
+	uint16_t cfg =    0 << 15  // No reset
+		   	| 0 << 13  // 16V
+			| 0 << 11  // Gain 1 (40mV)
+		   | 0b0011 << 7   // 12 bit, 532us (default)
+		   | 0b0011 << 3   // 12 bit, 532us (default)
+		   |  0b111;       // Shunt and bus, continuous (default)
+	writeSensorRegisterINA219(kWarpI2C_INA219_CONFIG_REG, (uint8_t*)cfg);
+	
 	readSensorRegisterINA219(kWarpI2C_INA219_SHUNT_V_REG);
-
-//	while (1)
-//	{
-//		readSensorRegisterINA219(kWarpI2C_INA219_SHUNT_V_REG);
-//	}
-
+	int16_t shunt_voltage = decodeShuntVoltageINA219(deviceINA219State.i2cBuffer[0], deviceINA219State.i2cBuffer[1]);
+	SEGGER_RTT_printf(0, "\nShunt voltage: %de-5 V\n", shunt_voltage);
 	return 0;
 }
 
