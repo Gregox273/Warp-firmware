@@ -19,6 +19,7 @@ WarpStatus readSensorRegisterINA219(uint8_t deviceRegister);
 
 WarpStatus writeSensorRegisterINA219(uint8_t deviceRegister, const uint8_t *data);
 
-int16_t decodeShuntVoltageINA219(uint8_t b1, uint8_t b2);
+int16_t concat_2x8bit(uint8_t b1, uint8_t b2);
 
+void split_2x8bit(uint16_t input, uint8_t *output);
 #endif // _DEVINA219_H_

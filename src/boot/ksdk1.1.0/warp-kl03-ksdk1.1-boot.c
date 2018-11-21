@@ -1110,11 +1110,22 @@ main(void)
 		   | 0b0011 << 7   // 12 bit, 532us (default)
 		   | 0b0011 << 3   // 12 bit, 532us (default)
 		   |  0b111;       // Shunt and bus, continuous (default)
-	writeSensorRegisterINA219(kWarpI2C_INA219_CONFIG_REG, (uint8_t*)cfg);
+	uint8_t cfg_bytes[2];
+	split_2x8bit(cfg, cfg_bytes);
+	writeSensorRegisterINA219(kWarpI2C_INA219_CONFIG_REG, cfg_bytes);
+	/* Set calibration register */
+	uint8_t calibration[2]; 
+	split_2x8bit(40960, calibration);  // 4096/R_shunt
+  	writeSensorRegisterINA219(kWarpI2C_INA219_CALIBRATION_REG, calibration);
 	
 	readSensorRegisterINA219(kWarpI2C_INA219_SHUNT_V_REG);
-	int16_t shunt_voltage = decodeShuntVoltageINA219(deviceINA219State.i2cBuffer[0], deviceINA219State.i2cBuffer[1]);
+	int16_t shunt_voltage = concat_2x8bit(deviceINA219State.i2cBuffer[0], deviceINA219State.i2cBuffer[1]);
 	SEGGER_RTT_printf(0, "\nShunt voltage: %de-5 V\n", shunt_voltage);
+	
+	readSensorRegisterINA219(kWarpI2C_INA219_CURRENT_REG);
+	int16_t shunt_current = concat_2x8bit(deviceINA219State.i2cBuffer[0], deviceINA219State.i2cBuffer[1]);
+	SEGGER_RTT_printf(0, "\nShunt current: %duA\n", shunt_current*10);
+
 	return 0;
 }
 
