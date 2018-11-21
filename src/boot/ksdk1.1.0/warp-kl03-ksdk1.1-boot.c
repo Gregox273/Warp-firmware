@@ -1122,10 +1122,13 @@ main(void)
 	int16_t shunt_voltage = concat_2x8bit(deviceINA219State.i2cBuffer[0], deviceINA219State.i2cBuffer[1]);
 	SEGGER_RTT_printf(0, "\nShunt voltage: %de-5 V\n", shunt_voltage);
 	
-	readSensorRegisterINA219(kWarpI2C_INA219_CURRENT_REG);
-	int16_t shunt_current = concat_2x8bit(deviceINA219State.i2cBuffer[0], deviceINA219State.i2cBuffer[1]);
-	SEGGER_RTT_printf(0, "\nShunt current: %duA\n", shunt_current*10);
-
+	for(int i = 0; i < 1000; i++)
+	{
+		readSensorRegisterINA219(kWarpI2C_INA219_CURRENT_REG);
+		int16_t shunt_current = concat_2x8bit(deviceINA219State.i2cBuffer[0], deviceINA219State.i2cBuffer[1]);
+		//SEGGER_RTT_printf(0, "\nShunt current: %duA\n", shunt_current*10);
+		SEGGER_RTT_printf(0, "\n%d,",shunt_current*10);
+	}
 	return 0;
 }
 
